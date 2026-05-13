@@ -418,7 +418,7 @@ function animateRadar(scores, color) {
   function step(ts) {
     if (!start) start = ts;
     const p = Math.min((ts-start)/duration, 1);
-    drawRadar(scores, color, 420, ease(p));
+    drawRadar(scores, color, 800, ease(p));
     if (p < 1) animRAF = requestAnimationFrame(step);
   }
   animRAF = requestAnimationFrame(step);
