@@ -9,7 +9,7 @@
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { height: 100%; overflow: hidden; }
   body { background: #080C18; color: #fff; font-family: 'Barlow Condensed', sans-serif; display: flex; flex-direction: column; height: 100vh; }
-
+ 
   #loading {
     position: fixed; inset: 0; background: #080C18;
     display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; z-index: 100;
@@ -19,7 +19,7 @@
   #loading .msg { font-size: 10px; letter-spacing: 2px; color: rgba(255,255,255,0.3); text-transform: uppercase; }
   #loading.hidden { display: none; }
   @keyframes spin { to { transform: rotate(360deg); } }
-
+ 
   #error-screen {
     position: fixed; inset: 0; background: #080C18;
     display: none; flex-direction: column; align-items: center; justify-content: center; gap: 12px;
@@ -28,7 +28,7 @@
   #error-screen .err-title { font-size: 13px; font-weight: 700; letter-spacing: 2px; color: #C94C4C; text-transform: uppercase; }
   #error-screen .err-msg { font-size: 11px; color: rgba(255,255,255,0.4); max-width: 400px; text-align: center; line-height: 1.6; font-family: 'Barlow', sans-serif; }
   #error-screen a { color: #C9A84C; text-decoration: none; font-size: 11px; }
-
+ 
   #header {
     border-bottom: 1px solid rgba(255,255,255,0.07);
     padding: 12px 24px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
@@ -40,17 +40,17 @@
   .legend-item { display: flex; align-items: center; gap: 5px; }
   .legend-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
   .legend-label { font-size: 9px; letter-spacing: 1.5px; color: rgba(255,255,255,0.3); text-transform: uppercase; }
-
+ 
   #app { display: flex; flex: 1; overflow: hidden; }
-
+ 
   #sidebar {
-    width: 220px; flex-shrink: 0;
+    width: 300px; flex-shrink: 0;
     border-right: 1px solid rgba(255,255,255,0.07);
     padding: 10px 8px; display: flex; flex-direction: column; gap: 2px; overflow-y: auto;
   }
   #sidebar::-webkit-scrollbar { width: 3px; }
   #sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
-
+ 
   #filter-bar { display: flex; flex-wrap: wrap; gap: 3px; margin-bottom: 6px; }
   .filter-btn {
     background: transparent; border: 1px solid rgba(255,255,255,0.1); border-radius: 2px;
@@ -58,13 +58,13 @@
     font-size: 9px; letter-spacing: 1px; text-transform: uppercase; font-family: 'Barlow Condensed', sans-serif; transition: all 0.15s;
   }
   .filter-btn.active { background: rgba(201,168,76,0.15); border-color: #C9A84C; color: #C9A84C; }
-
+ 
   #list-header {
     font-size: 8px; letter-spacing: 2px; color: rgba(255,255,255,0.15);
     text-transform: uppercase; margin-bottom: 4px; padding: 0 4px;
     display: flex; justify-content: space-between;
   }
-
+ 
   .athlete-row {
     display: flex; align-items: center; gap: 6px; padding: 4px 8px;
     border-radius: 3px; border: 1px solid transparent; cursor: pointer;
@@ -74,29 +74,29 @@
   .athlete-row.active { border-color: var(--pc); background: rgba(var(--pc-rgb),0.12); }
   .athlete-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
   .athlete-name {
-    font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 700;
+    font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 700;
     color: rgba(255,255,255,0.65); letter-spacing: 0.3px; text-transform: uppercase;
     flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
   .athlete-row.active .athlete-name { color: #fff; }
   .athlete-div { font-size: 9px; color: rgba(255,255,255,0.2); flex-shrink: 0; }
   .athlete-scores {
-    font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.3);
+    font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.3);
     flex-shrink: 0; min-width: 38px; text-align: right; letter-spacing: 0.5px;
   }
   .athlete-row.active .athlete-scores { color: var(--pc); }
-
+ 
   #main { display: flex; flex: 1; overflow: hidden; }
-
+ 
   #center {
     flex: 1; display: flex; flex-direction: column; align-items: center;
     padding: 20px 32px; overflow-y: auto;
   }
   #center::-webkit-scrollbar { width: 3px; }
   #center::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); }
-
+ 
   #athlete-fase { font-size: 8px; letter-spacing: 3px; color: rgba(255,255,255,0.2); text-transform: uppercase; margin-bottom: 4px; }
-  #athlete-name { font-size: 34px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; line-height: 1; color: #fff; }
+  #athlete-name { font-size: 48px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; line-height: 1; color: #fff; }
   #athlete-sub { font-size: 12px; font-weight: 300; letter-spacing: 3px; text-transform: uppercase; margin-top: 3px; }
   #ativo-badge {
     display: none; margin-top: 6px;
@@ -104,40 +104,40 @@
     color: #C9A84C; border: 1px solid rgba(201,168,76,0.4); border-radius: 2px; padding: 2px 10px;
   }
   #ativo-badge.visible { display: inline-block; }
-
+ 
   #radar-wrap { position: relative; margin: 12px 0; }
   #radar-avg { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); text-align: center; pointer-events: none; }
   .avg-val { font-size: 20px; font-weight: 800; line-height: 1; }
   .avg-label { font-size: 7px; letter-spacing: 1.5px; color: rgba(255,255,255,0.3); text-transform: uppercase; }
-
+ 
   #profile-badge { border-width: 1px; border-style: solid; border-radius: 2px; padding: 4px 14px; margin-bottom: 14px; }
   #profile-badge span { font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; }
-
+ 
   #insight-box {
     max-width: 380px; text-align: center; padding: 12px 18px;
     background: rgba(255,255,255,0.03); border-radius: 0 2px 2px 0;
     border-left-width: 2px; border-left-style: solid;
   }
   #insight-box p { font-family: 'Barlow', sans-serif; font-size: 12px; font-weight: 300; color: rgba(255,255,255,0.6); line-height: 1.6; }
-
+ 
   #right {
-    width: 260px; flex-shrink: 0;
+    width: 320px; flex-shrink: 0;
     border-left: 1px solid rgba(255,255,255,0.07);
     padding: 20px; display: flex; flex-direction: column; overflow-y: auto;
   }
   #right::-webkit-scrollbar { width: 3px; }
   #right::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); }
-
+ 
   .section-label { font-size: 9px; letter-spacing: 2.5px; color: rgba(255,255,255,0.2); text-transform: uppercase; margin-bottom: 14px; }
   .divider { height: 1px; background: rgba(255,255,255,0.07); margin: 18px 0; }
-
+ 
   .score-bar { margin-bottom: 14px; }
   .score-bar-header { display: flex; justify-content: space-between; margin-bottom: 5px; }
   .score-bar-label { font-size: 11px; letter-spacing: 2px; color: rgba(255,255,255,0.5); text-transform: uppercase; }
   .score-bar-val { font-size: 13px; font-weight: 700; }
   .score-bar-track { height: 3px; background: rgba(255,255,255,0.07); border-radius: 2px; }
   .score-bar-fill { height: 100%; border-radius: 2px; transition: width 0.8s cubic-bezier(0.16,1,0.3,1); }
-
+ 
   .bench-row { display: flex; align-items: center; gap: 7px; margin-bottom: 9px; cursor: pointer; transition: opacity 0.2s; }
   .bench-row.dimmed { opacity: 0.4; }
   .bench-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
@@ -148,31 +148,31 @@
   .bench-avg { font-size: 10px; font-weight: 700; }
   .bench-track { height: 2px; background: rgba(255,255,255,0.05); border-radius: 1px; }
   .bench-fill { height: 100%; border-radius: 1px; }
-
+ 
   .gap-row { display: flex; justify-content: space-between; margin-bottom: 7px; }
   .gap-label { font-size: 9px; color: rgba(255,255,255,0.3); }
   .gap-val { font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.4); }
   .gap-val.critical { color: #C94C4C; }
-
+ 
   #tagline { font-family: 'Barlow', sans-serif; font-size: 10px; font-style: italic; color: rgba(255,255,255,0.2); line-height: 1.6; margin-top: auto; padding-top: 20px; }
-
+ 
   #last-updated { font-size: 8px; letter-spacing: 1px; color: rgba(255,255,255,0.15); text-transform: uppercase; margin-top: 8px; }
 </style>
 </head>
 <body>
-
+ 
 <div id="loading">
   <div class="logo">Wise Corner</div>
   <div class="spinner"></div>
   <div class="msg">Carregando dados...</div>
 </div>
-
+ 
 <div id="error-screen">
   <div class="err-title">Erro ao carregar dados</div>
   <div class="err-msg" id="error-msg">Não foi possível conectar à planilha. Verifique se a URL está configurada corretamente no arquivo config.js.</div>
   <a href="#" onclick="location.reload()">Tentar novamente</a>
 </div>
-
+ 
 <div id="header">
   <div style="display:flex;align-items:center">
     <span class="logo-text">Wise Corner</span>
@@ -181,7 +181,7 @@
   </div>
   <div id="legend"></div>
 </div>
-
+ 
 <div id="app">
   <div id="sidebar">
     <div id="filter-bar"></div>
@@ -198,7 +198,7 @@
       <div id="athlete-sub"></div>
       <div id="ativo-badge">★ Ativo de Valor</div>
       <div id="radar-wrap">
-        <svg id="radar-svg" width="240" height="240"></svg>
+        <svg id="radar-svg" width="420" height="420"></svg>
         <div id="radar-avg">
           <div class="avg-val" id="avg-val"></div>
           <div class="avg-label">média</div>
@@ -221,7 +221,7 @@
     </div>
   </div>
 </div>
-
+ 
 <script src="config.js"></script>
 <script>
 const PROFILE_COLORS = {
@@ -235,17 +235,17 @@ const PROFILE_LABELS = {
   valor: 'Ativo de Valor', adormecido: 'Adormecido',
   personagem: 'Personagem com Palco', fantasma: 'Fantasma', fase1: 'Estabelecimento',
 };
-
+ 
 let ATHLETES = [];
 let selected = 0;
 let filter = 'todos';
 let animRAF = null;
-
+ 
 // ── FETCH FROM GOOGLE SHEETS ──────────────────────────────────────────────────
 async function loadAthletes() {
   try {
     if (!window.SHEET_ID) throw new Error('SHEET_ID não configurado em config.js');
-    const url = `https://docs.google.com/spreadsheets/d/${window.SHEET_ID}/gviz/tq?tqx=out:csv&sheet=atletas`;
+    const url = `https://docs.google.com/spreadsheets/d/${window.SHEET_ID}/gviz/tq?tqx=out:csv&sheet=atletas&headers=1`;
     const res = await fetch(url);
     if (!res.ok) throw new Error('Planilha não acessível. Verifique se está publicada como pública.');
     const text = await res.text();
@@ -260,7 +260,7 @@ async function loadAthletes() {
     return false;
   }
 }
-
+ 
 function parseCSV(text) {
   const lines = text.trim().split('\n');
   // Remove header row
@@ -286,11 +286,11 @@ function parseCSV(text) {
     };
   }).filter(a => a.name);
 }
-
+ 
 function isAtivoDeValor(a) {
   return a.scores.R >= 3 && a.scores.N >= 3 && a.scores.P >= 3;
 }
-
+ 
 // ── LEGEND ────────────────────────────────────────────────────────────────────
 function buildLegend() {
   const el = document.getElementById('legend');
@@ -298,7 +298,7 @@ function buildLegend() {
     `<div class="legend-item"><div class="legend-dot" style="background:${PROFILE_COLORS[k].hex}"></div><span class="legend-label">${l}</span></div>`
   ).join('');
 }
-
+ 
 // ── FILTERS ───────────────────────────────────────────────────────────────────
 const fases = ['todos','Fase 4','Fase 3','Fase 2','Fase 1'];
 function buildFilters() {
@@ -315,7 +315,7 @@ function buildFilters() {
 function updateFilters() {
   document.querySelectorAll('.filter-btn').forEach((btn, i) => btn.classList.toggle('active', fases[i] === filter));
 }
-
+ 
 // ── SIDEBAR ───────────────────────────────────────────────────────────────────
 function renderSidebar() {
   const list = document.getElementById('athlete-list');
@@ -339,19 +339,19 @@ function renderSidebar() {
     list.appendChild(btn);
   });
 }
-
+ 
 // ── RADAR ─────────────────────────────────────────────────────────────────────
 function drawRadar(scores, color, size, p) {
   const svg = document.getElementById('radar-svg');
-  const pad = 52;
+  const pad = 70;
   svg.setAttribute('width', size); svg.setAttribute('height', size);
   svg.setAttribute('viewBox', `${-pad} ${-pad} ${size+pad*2} ${size+pad*2}`);
   svg.innerHTML = '';
-  const cx = size/2, cy = size/2, maxR = size*0.28;
+  const cx = size/2, cy = size/2, maxR = size*0.30;
   const axes = ['R','N','P'];
   const labels = ['Resultado','Narrativa','Presença'];
   const angles = [-90, 30, 150];
-
+ 
   const defs = document.createElementNS('http://www.w3.org/2000/svg','defs');
   const grad = document.createElementNS('http://www.w3.org/2000/svg','radialGradient');
   grad.id='rg'; grad.setAttribute('cx','50%'); grad.setAttribute('cy','50%'); grad.setAttribute('r','50%');
@@ -362,7 +362,7 @@ function drawRadar(scores, color, size, p) {
     grad.appendChild(st);
   });
   defs.appendChild(grad); svg.appendChild(defs);
-
+ 
   [1,2,3,4,5].forEach(level => {
     const pts = angles.map(a => { const r=(level/5)*maxR, rad=a*Math.PI/180; return `${cx+r*Math.cos(rad)},${cy+r*Math.sin(rad)}`; }).join(' ');
     const poly = document.createElementNS('http://www.w3.org/2000/svg','polygon');
@@ -370,7 +370,7 @@ function drawRadar(scores, color, size, p) {
     poly.setAttribute('stroke','rgba(255,255,255,0.07)'); poly.setAttribute('stroke-width','1');
     svg.appendChild(poly);
   });
-
+ 
   angles.forEach(a => {
     const rad=a*Math.PI/180;
     const line = document.createElementNS('http://www.w3.org/2000/svg','line');
@@ -379,13 +379,13 @@ function drawRadar(scores, color, size, p) {
     line.setAttribute('stroke','rgba(255,255,255,0.1)'); line.setAttribute('stroke-width','1');
     svg.appendChild(line);
   });
-
+ 
   const pts = axes.map((ax,i) => { const rad=angles[i]*Math.PI/180, r=(scores[ax]/5)*maxR*p; return `${cx+r*Math.cos(rad)},${cy+r*Math.sin(rad)}`; }).join(' ');
   const poly = document.createElementNS('http://www.w3.org/2000/svg','polygon');
   poly.setAttribute('points',pts); poly.setAttribute('fill','url(#rg)');
   poly.setAttribute('stroke',color); poly.setAttribute('stroke-width','2'); poly.setAttribute('stroke-linejoin','round');
   svg.appendChild(poly);
-
+ 
   axes.forEach((ax,i) => {
     const rad=angles[i]*Math.PI/180, r=(scores[ax]/5)*maxR*p;
     const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
@@ -393,7 +393,7 @@ function drawRadar(scores, color, size, p) {
     c.setAttribute('r','4'); c.setAttribute('fill',color);
     svg.appendChild(c);
   });
-
+ 
   axes.forEach((ax,i) => {
     const rad=angles[i]*Math.PI/180, lr=maxR*1.58;
     const lx=cx+lr*Math.cos(rad), ly=cy+lr*Math.sin(rad);
@@ -409,7 +409,7 @@ function drawRadar(scores, color, size, p) {
     tv.textContent = scores[ax]; svg.appendChild(tv);
   });
 }
-
+ 
 function animateRadar(scores, color) {
   if (animRAF) cancelAnimationFrame(animRAF);
   const duration = 900;
@@ -418,40 +418,40 @@ function animateRadar(scores, color) {
   function step(ts) {
     if (!start) start = ts;
     const p = Math.min((ts-start)/duration, 1);
-    drawRadar(scores, color, 240, ease(p));
+    drawRadar(scores, color, 420, ease(p));
     if (p < 1) animRAF = requestAnimationFrame(step);
   }
   animRAF = requestAnimationFrame(step);
 }
-
+ 
 // ── MAIN ──────────────────────────────────────────────────────────────────────
 function renderMain() {
   const a = ATHLETES[selected];
   const pc = PROFILE_COLORS[a.profileKey] || PROFILE_COLORS.fase1;
   const avg = ((a.scores.R+a.scores.N+a.scores.P)/3).toFixed(1);
   const isValor = isAtivoDeValor(a);
-
+ 
   document.getElementById('athlete-fase').textContent = a.fase;
   document.getElementById('athlete-name').textContent = a.name;
   document.getElementById('athlete-sub').textContent = `"${a.nickname}" · ${a.division}`;
   document.getElementById('athlete-sub').style.color = pc.hex;
-
+ 
   const badge = document.getElementById('ativo-badge');
   badge.classList.toggle('visible', isValor);
-
+ 
   animateRadar(a.scores, pc.hex);
   document.getElementById('avg-val').textContent = avg;
   document.getElementById('avg-val').style.color = pc.hex;
-
+ 
   const pb = document.getElementById('profile-badge');
   pb.style.borderColor = pc.hex;
   document.getElementById('profile-text').textContent = a.profile;
   document.getElementById('profile-text').style.color = pc.hex;
-
+ 
   const ib = document.getElementById('insight-box');
   ib.style.borderLeftColor = pc.hex;
   document.getElementById('insight-text').textContent = a.insight;
-
+ 
   // Score bars
   document.getElementById('score-bars').innerHTML =
     [['Resultado','R'],['Narrativa','N'],['Presença','P']].map(([label,key]) => `
@@ -462,7 +462,7 @@ function renderMain() {
         </div>
         <div class="score-bar-track"><div class="score-bar-fill" style="width:${(a.scores[key]/5)*100}%;background:${pc.hex}"></div></div>
       </div>`).join('');
-
+ 
   // Benchmark
   const benchEl = document.getElementById('benchmark');
   benchEl.innerHTML = '';
@@ -483,7 +483,7 @@ function renderMain() {
     row.onclick = () => { selected=i; renderSidebar(); renderMain(); };
     benchEl.appendChild(row);
   });
-
+ 
   // Gaps
   const gaps = [
     { label:'Resultado → Narrativa', val: a.scores.R-a.scores.N },
@@ -497,7 +497,7 @@ function renderMain() {
       <span class="gap-val ${Math.abs(g.val)===maxAbs&&g.val!==0?'critical':''}">${g.val>0?'+'+g.val:g.val}</span>
     </div>`).join('');
 }
-
+ 
 // ── INIT ──────────────────────────────────────────────────────────────────────
 (async () => {
   const ok = await loadAthletes();
