@@ -9,4 +9,4 @@
 // Planilha → Arquivo → Compartilhar → Publicar na web → Publicar
 // ─────────────────────────────────────────────────────────────────────────────
 
-window.SHEET_ID = '1wOgDRVWejVEYfFIPJl084RD90boo_kglFeY1cz7-koU';
+window.SHEET_ID = '1q_JpWB1SGm4NA3q8F9HAhZGCgz1vix7FULsncZ2fsPE';
