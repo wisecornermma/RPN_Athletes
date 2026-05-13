@@ -157,6 +157,60 @@
   #tagline { font-family: 'Barlow', sans-serif; font-size: 10px; font-style: italic; color: rgba(255,255,255,0.2); line-height: 1.6; margin-top: auto; padding-top: 20px; }
  
   #last-updated { font-size: 8px; letter-spacing: 1px; color: rgba(255,255,255,0.15); text-transform: uppercase; margin-top: 8px; }
+ 
+  /* ── MOBILE ── */
+  #mobile-bar { display: none; }
+ 
+  @media (max-width: 768px) {
+    html, body { overflow: auto; height: auto; }
+    body { height: auto; min-height: 100vh; }
+ 
+    #header { padding: 10px 16px; }
+    #legend { display: none; }
+    .subtitle { display: none; }
+ 
+    #mobile-bar {
+      display: flex; flex-direction: column; gap: 8px;
+      padding: 10px 14px; border-bottom: 1px solid rgba(255,255,255,0.07);
+      flex-shrink: 0; background: #080C18;
+    }
+ 
+    #mobile-select {
+      width: 100%; background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.12); border-radius: 4px;
+      color: #fff; font-family: 'Barlow Condensed', sans-serif;
+      font-size: 14px; font-weight: 700; letter-spacing: 0.5px;
+      padding: 10px 14px; cursor: pointer; appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23C9A84C' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 14px center;
+    }
+    #mobile-select option { background: #0D1120; color: #fff; }
+ 
+    #mobile-filter-bar { display: flex; flex-wrap: wrap; gap: 4px; }
+    #mobile-filter-bar .filter-btn { font-size: 10px; padding: 3px 10px; }
+ 
+    #app { flex-direction: column; overflow: visible; }
+    #sidebar { display: none; }
+    #main { flex-direction: column; overflow: visible; }
+ 
+    #center {
+      overflow: visible; padding: 16px;
+      align-items: center; width: 100%;
+    }
+ 
+    #athlete-name { font-size: 28px; }
+    #athlete-sub { font-size: 11px; letter-spacing: 2px; }
+ 
+    #radar-wrap { margin: 8px 0; }
+ 
+    #insight-box { max-width: 100%; }
+ 
+    #right {
+      width: 100%; border-left: none;
+      border-top: 1px solid rgba(255,255,255,0.07);
+      padding: 16px; overflow: visible;
+    }
+  }
 </style>
 </head>
 <body>
@@ -180,6 +234,11 @@
     <span class="subtitle">Framework RPN — Benchmark</span>
   </div>
   <div id="legend"></div>
+</div>
+ 
+<div id="mobile-bar">
+  <select id="mobile-select"></select>
+  <div id="mobile-filter-bar"></div>
 </div>
  
 <div id="app">
@@ -291,7 +350,71 @@ function isAtivoDeValor(a) {
   return a.scores.R >= 3 && a.scores.N >= 3 && a.scores.P >= 3;
 }
  
-// ── LEGEND ────────────────────────────────────────────────────────────────────
+// ── MOBILE BAR ────────────────────────────────────────────────────────────────
+function buildMobileBar() {
+  // Dropdown
+  const sel = document.getElementById('mobile-select');
+  sel.innerHTML = '';
+  ATHLETES.forEach((a, i) => {
+    const opt = document.createElement('option');
+    opt.value = i;
+    opt.textContent = `${a.name} — ${a.scores.R}/${a.scores.N}/${a.scores.P}`;
+    if (i === selected) opt.selected = true;
+    sel.appendChild(opt);
+  });
+  sel.onchange = () => { selected = parseInt(sel.value); syncMobileSelect(); renderSidebar(); renderMain(); };
+ 
+  // Filter buttons
+  const bar = document.getElementById('mobile-filter-bar');
+  bar.innerHTML = '';
+  fases.forEach(f => {
+    const btn = document.createElement('button');
+    btn.className = 'filter-btn' + (f === filter ? ' active' : '');
+    btn.textContent = f === 'todos' ? 'ALL' : f.split(' ')[1];
+    btn.onclick = () => {
+      filter = f;
+      renderSidebar();
+      updateFilters();
+      updateMobileFilters();
+      filterMobileDropdown();
+    };
+    bar.appendChild(btn);
+  });
+}
+ 
+function syncMobileSelect() {
+  const sel = document.getElementById('mobile-select');
+  if (sel) sel.value = selected;
+}
+ 
+function updateMobileFilters() {
+  const btns = document.querySelectorAll('#mobile-filter-bar .filter-btn');
+  btns.forEach((btn, i) => btn.classList.toggle('active', fases[i] === filter));
+}
+ 
+function filterMobileDropdown() {
+  const sel = document.getElementById('mobile-select');
+  if (!sel) return;
+  sel.innerHTML = '';
+  const visible = ATHLETES.filter(a => filter === 'todos' || a.fase.startsWith(filter));
+  visible.forEach(a => {
+    const i = ATHLETES.indexOf(a);
+    const opt = document.createElement('option');
+    opt.value = i;
+    opt.textContent = `${a.name} — ${a.scores.R}/${a.scores.N}/${a.scores.P}`;
+    if (i === selected) opt.selected = true;
+    sel.appendChild(opt);
+  });
+  // Se atleta atual sumiu do filtro, seleciona o primeiro visível
+  if (!visible.find((a, idx) => ATHLETES.indexOf(a) === selected) && visible.length) {
+    selected = ATHLETES.indexOf(visible[0]);
+    sel.value = selected;
+    renderSidebar();
+    renderMain();
+  }
+}
+ 
+ 
 function buildLegend() {
   const el = document.getElementById('legend');
   el.innerHTML = Object.entries(PROFILE_LABELS).map(([k,l]) =>
@@ -412,13 +535,17 @@ function drawRadar(scores, color, size, p) {
  
 function animateRadar(scores, color) {
   if (animRAF) cancelAnimationFrame(animRAF);
+  const isMobile = window.innerWidth <= 768;
+  const radarSize = isMobile ? Math.min(window.innerWidth - 32, 320) : 420;
+  const svg = document.getElementById('radar-svg');
+  svg.setAttribute('width', radarSize); svg.setAttribute('height', radarSize);
   const duration = 900;
   const ease = t => t<0.5?2*t*t:-1+(4-2*t)*t;
   let start = null;
   function step(ts) {
     if (!start) start = ts;
     const p = Math.min((ts-start)/duration, 1);
-    drawRadar(scores, color, 800, ease(p));
+    drawRadar(scores, color, radarSize, ease(p));
     if (p < 1) animRAF = requestAnimationFrame(step);
   }
   animRAF = requestAnimationFrame(step);
@@ -440,6 +567,7 @@ function renderMain() {
   badge.classList.toggle('visible', isValor);
  
   animateRadar(a.scores, pc.hex);
+  syncMobileSelect();
   document.getElementById('avg-val').textContent = avg;
   document.getElementById('avg-val').style.color = pc.hex;
  
@@ -504,6 +632,7 @@ function renderMain() {
   if (!ok) return;
   buildLegend();
   buildFilters();
+  buildMobileBar();
   renderSidebar();
   renderMain();
   document.getElementById('loading').classList.add('hidden');
