@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wise Corner — Framework RPN</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;400;600;700;800&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; overflow: hidden; }
+  body { background: #080C18; color: #fff; font-family: 'Barlow Condensed', sans-serif; display: flex; flex-direction: column; height: 100vh; }
+
+  #loading {
+    position: fixed; inset: 0; background: #080C18;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; z-index: 100;
+  }
+  #loading .logo { font-size: 14px; font-weight: 800; letter-spacing: 4px; color: #C9A84C; text-transform: uppercase; }
+  #loading .spinner { width: 24px; height: 24px; border: 2px solid rgba(201,168,76,0.2); border-top-color: #C9A84C; border-radius: 50%; animation: spin 0.8s linear infinite; }
+  #loading .msg { font-size: 10px; letter-spacing: 2px; color: rgba(255,255,255,0.3); text-transform: uppercase; }
+  #loading.hidden { display: none; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  #error-screen {
+    position: fixed; inset: 0; background: #080C18;
+    display: none; flex-direction: column; align-items: center; justify-content: center; gap: 12px;
+  }
+  #error-screen.visible { display: flex; }
+  #error-screen .err-title { font-size: 13px; font-weight: 700; letter-spacing: 2px; color: #C94C4C; text-transform: uppercase; }
+  #error-screen .err-msg { font-size: 11px; color: rgba(255,255,255,0.4); max-width: 400px; text-align: center; line-height: 1.6; font-family: 'Barlow', sans-serif; }
+  #error-screen a { color: #C9A84C; text-decoration: none; font-size: 11px; }
+
+  #header {
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    padding: 12px 24px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
+  }
+  .logo-text { font-size: 13px; font-weight: 800; letter-spacing: 3px; color: #C9A84C; text-transform: uppercase; }
+  .sep { color: rgba(255,255,255,0.15); margin: 0 12px; }
+  .subtitle { font-size: 10px; letter-spacing: 2px; color: rgba(255,255,255,0.3); text-transform: uppercase; }
+  #legend { display: flex; gap: 14px; align-items: center; }
+  .legend-item { display: flex; align-items: center; gap: 5px; }
+  .legend-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+  .legend-label { font-size: 9px; letter-spacing: 1.5px; color: rgba(255,255,255,0.3); text-transform: uppercase; }
+
+  #app { display: flex; flex: 1; overflow: hidden; }
+
+  #sidebar {
+    width: 300px; flex-shrink: 0;
+    border-right: 1px solid rgba(255,255,255,0.07);
+    padding: 10px 8px; display: flex; flex-direction: column; gap: 2px; overflow-y: auto;
+  }
+  #sidebar::-webkit-scrollbar { width: 3px; }
+  #sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+  #filter-bar { display: flex; flex-wrap: wrap; gap: 3px; margin-bottom: 6px; }
+  .filter-btn {
+    background: transparent; border: 1px solid rgba(255,255,255,0.1); border-radius: 2px;
+    padding: 2px 7px; cursor: pointer; color: rgba(255,255,255,0.35);
+    font-size: 9px; letter-spacing: 1px; text-transform: uppercase; font-family: 'Barlow Condensed', sans-serif; transition: all 0.15s;
+  }
+  .filter-btn.active { background: rgba(201,168,76,0.15); border-color: #C9A84C; color: #C9A84C; }
+
+  #list-header {
+    font-size: 8px; letter-spacing: 2px; color: rgba(255,255,255,0.15);
+    text-transform: uppercase; margin-bottom: 4px; padding: 0 4px;
+    display: flex; justify-content: space-between;
+  }
+
+  .athlete-row {
+    display: flex; align-items: center; gap: 6px; padding: 4px 8px;
+    border-radius: 3px; border: 1px solid transparent; cursor: pointer;
+    transition: all 0.15s; width: 100%; background: transparent; text-align: left;
+  }
+  .athlete-row:hover { background: rgba(255,255,255,0.03); }
+  .athlete-row.active { border-color: var(--pc); background: rgba(var(--pc-rgb),0.12); }
+  .athlete-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+  .athlete-name {
+    font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 700;
+    color: rgba(255,255,255,0.65); letter-spacing: 0.3px; text-transform: uppercase;
+    flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .athlete-row.active .athlete-name { color: #fff; }
+  .athlete-div { font-size: 9px; color: rgba(255,255,255,0.2); flex-shrink: 0; }
+  .athlete-scores {
+    font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.3);
+    flex-shrink: 0; min-width: 38px; text-align: right; letter-spacing: 0.5px;
+  }
+  .athlete-row.active .athlete-scores { color: var(--pc); }
+
+  #main { display: flex; flex: 1; overflow: hidden; }
+
+  #center {
+    flex: 1; display: flex; flex-direction: column; align-items: center;
+    padding: 20px 32px; overflow-y: auto;
+  }
+  #center::-webkit-scrollbar { width: 3px; }
+  #center::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); }
+
+  #athlete-fase { font-size: 8px; letter-spacing: 3px; color: rgba(255,255,255,0.2); text-transform: uppercase; margin-bottom: 4px; }
+  #athlete-name { font-size: 48px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; line-height: 1; color: #fff; }
+  #athlete-sub { font-size: 12px; font-weight: 300; letter-spacing: 3px; text-transform: uppercase; margin-top: 3px; }
+  #ativo-badge {
+    display: none; margin-top: 6px;
+    font-size: 9px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+    color: #C9A84C; border: 1px solid rgba(201,168,76,0.4); border-radius: 2px; padding: 2px 10px;
+  }
+  #ativo-badge.visible { display: inline-block; }
+
+  #radar-wrap { position: relative; margin: 12px 0; }
+  #radar-avg { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); text-align: center; pointer-events: none; }
+  .avg-val { font-size: 20px; font-weight: 800; line-height: 1; }
+  .avg-label { font-size: 7px; letter-spacing: 1.5px; color: rgba(255,255,255,0.3); text-transform: uppercase; }
+
+  #profile-badge { border-width: 1px; border-style: solid; border-radius: 2px; padding: 4px 14px; margin-bottom: 14px; }
+  #profile-badge span { font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; }
+
+  #insight-box {
+    max-width: 380px; text-align: center; padding: 12px 18px;
+    background: rgba(255,255,255,0.03); border-radius: 0 2px 2px 0;
+    border-left-width: 2px; border-left-style: solid;
+  }
+  #insight-box p { font-family: 'Barlow', sans-serif; font-size: 12px; font-weight: 300; color: rgba(255,255,255,0.6); line-height: 1.6; }
+
+  #right {
+    width: 320px; flex-shrink: 0;
+    border-left: 1px solid rgba(255,255,255,0.07);
+    padding: 20px; display: flex; flex-direction: column; overflow-y: auto;
+  }
+  #right::-webkit-scrollbar { width: 3px; }
+  #right::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); }
+
+  .section-label { font-size: 9px; letter-spacing: 2.5px; color: rgba(255,255,255,0.2); text-transform: uppercase; margin-bottom: 14px; }
+  .divider { height: 1px; background: rgba(255,255,255,0.07); margin: 18px 0; }
+
+  .score-bar { margin-bottom: 14px; }
+  .score-bar-header { display: flex; justify-content: space-between; margin-bottom: 5px; }
+  .score-bar-label { font-size: 11px; letter-spacing: 2px; color: rgba(255,255,255,0.5); text-transform: uppercase; }
+  .score-bar-val { font-size: 13px; font-weight: 700; }
+  .score-bar-track { height: 3px; background: rgba(255,255,255,0.07); border-radius: 2px; }
+  .score-bar-fill { height: 100%; border-radius: 2px; transition: width 0.8s cubic-bezier(0.16,1,0.3,1); }
+
+  .bench-row { display: flex; align-items: center; gap: 7px; margin-bottom: 9px; cursor: pointer; transition: opacity 0.2s; }
+  .bench-row.dimmed { opacity: 0.4; }
+  .bench-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+  .bench-info { flex: 1; }
+  .bench-top { display: flex; justify-content: space-between; margin-bottom: 3px; }
+  .bench-name { font-size: 10px; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 0.5px; }
+  .bench-row:not(.dimmed) .bench-name { color: #fff; font-weight: 700; }
+  .bench-avg { font-size: 10px; font-weight: 700; }
+  .bench-track { height: 2px; background: rgba(255,255,255,0.05); border-radius: 1px; }
+  .bench-fill { height: 100%; border-radius: 1px; }
+
+  .gap-row { display: flex; justify-content: space-between; margin-bottom: 7px; }
+  .gap-label { font-size: 9px; color: rgba(255,255,255,0.3); }
+  .gap-val { font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.4); }
+  .gap-val.critical { color: #C94C4C; }
+
+  #tagline { font-family: 'Barlow', sans-serif; font-size: 10px; font-style: italic; color: rgba(255,255,255,0.2); line-height: 1.6; margin-top: auto; padding-top: 20px; }
+
+  #last-updated { font-size: 8px; letter-spacing: 1px; color: rgba(255,255,255,0.15); text-transform: uppercase; margin-top: 8px; }
+</style>
+</head>
+<body>
+
+<div id="loading">
+  <div class="logo">Wise Corner</div>
+  <div class="spinner"></div>
+  <div class="msg">Carregando dados...</div>
+</div>
+
+<div id="error-screen">
+  <div class="err-title">Erro ao carregar dados</div>
+  <div class="err-msg" id="error-msg">Não foi possível conectar à planilha. Verifique se a URL está configurada corretamente no arquivo config.js.</div>
+  <a href="#" onclick="location.reload()">Tentar novamente</a>
+</div>
+
+<div id="header">
+  <div style="display:flex;align-items:center">
+    <span class="logo-text">Wise Corner</span>
+    <span class="sep">|</span>
+    <span class="subtitle">Framework RPN — Benchmark</span>
+  </div>
+  <div id="legend"></div>
+</div>
+
+<div id="app">
+  <div id="sidebar">
+    <div id="filter-bar"></div>
+    <div id="list-header">
+      <span id="list-count">— atletas</span>
+      <span>R/N/P</span>
+    </div>
+    <div id="athlete-list"></div>
+  </div>
+  <div id="main">
+    <div id="center">
+      <div id="athlete-fase"></div>
+      <div id="athlete-name"></div>
+      <div id="athlete-sub"></div>
+      <div id="ativo-badge">★ Ativo de Valor</div>
+      <div id="radar-wrap">
+        <svg id="radar-svg" width="420" height="420"></svg>
+        <div id="radar-avg">
+          <div class="avg-val" id="avg-val"></div>
+          <div class="avg-label">média</div>
+        </div>
+      </div>
+      <div id="profile-badge"><span id="profile-text"></span></div>
+      <div id="insight-box"><p id="insight-text"></p></div>
+    </div>
+    <div id="right">
+      <div class="section-label">Eixos RPN</div>
+      <div id="score-bars"></div>
+      <div class="divider"></div>
+      <div class="section-label">Benchmark Comparativo</div>
+      <div id="benchmark"></div>
+      <div class="divider"></div>
+      <div class="section-label">Análise de Gap</div>
+      <div id="gaps"></div>
+      <div id="tagline">"Resultado é o que você conquista dentro do octógono. Marca é o que fica quando você sai."</div>
+      <div id="last-updated"></div>
+    </div>
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script>
+const PROFILE_COLORS = {
+  valor:      { hex: '#C9A84C', rgb: '201,168,76' },
+  adormecido: { hex: '#4C8EC9', rgb: '76,142,201' },
+  personagem: { hex: '#C94C4C', rgb: '201,76,76' },
+  fantasma:   { hex: '#9B59B6', rgb: '155,89,182' },
+  fase1:      { hex: '#7C7C8A', rgb: '124,124,138' },
+};
+const PROFILE_LABELS = {
+  valor: 'Ativo de Valor', adormecido: 'Adormecido',
+  personagem: 'Personagem com Palco', fantasma: 'Fantasma', fase1: 'Estabelecimento',
+};
+
+let ATHLETES = [];
+let selected = 0;
+let filter = 'todos';
+let animRAF = null;
+
+// ── FETCH FROM GOOGLE SHEETS ──────────────────────────────────────────────────
+async function loadAthletes() {
+  try {
+    if (!window.SHEET_ID) throw new Error('SHEET_ID não configurado em config.js');
+    const url = `https://docs.google.com/spreadsheets/d/${window.SHEET_ID}/gviz/tq?tqx=out:csv&sheet=atletas&headers=1`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('Planilha não acessível. Verifique se está publicada como pública.');
+    const text = await res.text();
+    ATHLETES = parseCSV(text);
+    if (!ATHLETES.length) throw new Error('Nenhum atleta encontrado na planilha.');
+    document.getElementById('last-updated').textContent = 'Atualizado: ' + new Date().toLocaleString('pt-BR');
+    return true;
+  } catch(e) {
+    document.getElementById('error-msg').textContent = e.message;
+    document.getElementById('error-screen').classList.add('visible');
+    document.getElementById('loading').classList.add('hidden');
+    return false;
+  }
+}
+
+function parseCSV(text) {
+  const lines = text.trim().split('\n');
+  // Remove header row
+  const rows = lines.slice(1);
+  return rows.map(line => {
+    // Handle quoted fields with commas inside
+    const fields = [];
+    let cur = '', inQ = false;
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      if (ch === '"') { inQ = !inQ; }
+      else if (ch === ',' && !inQ) { fields.push(cur.trim()); cur = ''; }
+      else { cur += ch; }
+    }
+    fields.push(cur.trim());
+    const [name,nickname,division,fase,R,N,P,profileKey,profile,...insightParts] = fields;
+    return {
+      name, nickname, division, fase,
+      scores: { R: parseInt(R)||1, N: parseInt(N)||1, P: parseInt(P)||1 },
+      profileKey: profileKey || 'fase1',
+      profile,
+      insight: insightParts.join(',').replace(/^"|"$/g,''),
+    };
+  }).filter(a => a.name);
+}
+
+function isAtivoDeValor(a) {
+  return a.scores.R >= 3 && a.scores.N >= 3 && a.scores.P >= 3;
+}
+
+// ── LEGEND ────────────────────────────────────────────────────────────────────
+function buildLegend() {
+  const el = document.getElementById('legend');
+  el.innerHTML = Object.entries(PROFILE_LABELS).map(([k,l]) =>
+    `<div class="legend-item"><div class="legend-dot" style="background:${PROFILE_COLORS[k].hex}"></div><span class="legend-label">${l}</span></div>`
+  ).join('');
+}
+
+// ── FILTERS ───────────────────────────────────────────────────────────────────
+const fases = ['todos','Fase 4','Fase 3','Fase 2','Fase 1'];
+function buildFilters() {
+  const bar = document.getElementById('filter-bar');
+  bar.innerHTML = '';
+  fases.forEach(f => {
+    const btn = document.createElement('button');
+    btn.className = 'filter-btn' + (f === filter ? ' active' : '');
+    btn.textContent = f === 'todos' ? 'ALL' : f.split(' ')[1];
+    btn.onclick = () => { filter = f; renderSidebar(); updateFilters(); };
+    bar.appendChild(btn);
+  });
+}
+function updateFilters() {
+  document.querySelectorAll('.filter-btn').forEach((btn, i) => btn.classList.toggle('active', fases[i] === filter));
+}
+
+// ── SIDEBAR ───────────────────────────────────────────────────────────────────
+function renderSidebar() {
+  const list = document.getElementById('athlete-list');
+  list.innerHTML = '';
+  const visible = ATHLETES.filter(a => filter === 'todos' || a.fase.startsWith(filter));
+  document.getElementById('list-count').textContent = visible.length + ' atletas';
+  visible.forEach(a => {
+    const idx = ATHLETES.indexOf(a);
+    const pc = PROFILE_COLORS[a.profileKey] || PROFILE_COLORS.fase1;
+    const divWord = a.division.split(' ').slice(-1)[0];
+    const btn = document.createElement('button');
+    btn.className = 'athlete-row' + (idx === selected ? ' active' : '');
+    btn.style.setProperty('--pc', pc.hex);
+    btn.style.setProperty('--pc-rgb', pc.rgb);
+    btn.innerHTML = `
+      <div class="athlete-dot" style="background:${pc.hex}"></div>
+      <span class="athlete-name">${a.name}</span>
+      <span class="athlete-div">${divWord}</span>
+      <span class="athlete-scores">${a.scores.R}/${a.scores.N}/${a.scores.P}</span>`;
+    btn.onclick = () => { selected = idx; renderSidebar(); renderMain(); };
+    list.appendChild(btn);
+  });
+}
+
+// ── RADAR ─────────────────────────────────────────────────────────────────────
+function drawRadar(scores, color, size, p) {
+  const svg = document.getElementById('radar-svg');
+  const pad = 70;
+  svg.setAttribute('width', size); svg.setAttribute('height', size);
+  svg.setAttribute('viewBox', `${-pad} ${-pad} ${size+pad*2} ${size+pad*2}`);
+  svg.innerHTML = '';
+  const cx = size/2, cy = size/2, maxR = size*0.30;
+  const axes = ['R','N','P'];
+  const labels = ['Resultado','Narrativa','Presença'];
+  const angles = [-90, 30, 150];
+
+  const defs = document.createElementNS('http://www.w3.org/2000/svg','defs');
+  const grad = document.createElementNS('http://www.w3.org/2000/svg','radialGradient');
+  grad.id='rg'; grad.setAttribute('cx','50%'); grad.setAttribute('cy','50%'); grad.setAttribute('r','50%');
+  ['0%:0.25','100%:0.05'].forEach(s => {
+    const [off,op] = s.split(':');
+    const st = document.createElementNS('http://www.w3.org/2000/svg','stop');
+    st.setAttribute('offset',off); st.setAttribute('stop-color',color); st.setAttribute('stop-opacity',op);
+    grad.appendChild(st);
+  });
+  defs.appendChild(grad); svg.appendChild(defs);
+
+  [1,2,3,4,5].forEach(level => {
+    const pts = angles.map(a => { const r=(level/5)*maxR, rad=a*Math.PI/180; return `${cx+r*Math.cos(rad)},${cy+r*Math.sin(rad)}`; }).join(' ');
+    const poly = document.createElementNS('http://www.w3.org/2000/svg','polygon');
+    poly.setAttribute('points',pts); poly.setAttribute('fill','none');
+    poly.setAttribute('stroke','rgba(255,255,255,0.07)'); poly.setAttribute('stroke-width','1');
+    svg.appendChild(poly);
+  });
+
+  angles.forEach(a => {
+    const rad=a*Math.PI/180;
+    const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+    line.setAttribute('x1',cx); line.setAttribute('y1',cy);
+    line.setAttribute('x2',cx+maxR*Math.cos(rad)); line.setAttribute('y2',cy+maxR*Math.sin(rad));
+    line.setAttribute('stroke','rgba(255,255,255,0.1)'); line.setAttribute('stroke-width','1');
+    svg.appendChild(line);
+  });
+
+  const pts = axes.map((ax,i) => { const rad=angles[i]*Math.PI/180, r=(scores[ax]/5)*maxR*p; return `${cx+r*Math.cos(rad)},${cy+r*Math.sin(rad)}`; }).join(' ');
+  const poly = document.createElementNS('http://www.w3.org/2000/svg','polygon');
+  poly.setAttribute('points',pts); poly.setAttribute('fill','url(#rg)');
+  poly.setAttribute('stroke',color); poly.setAttribute('stroke-width','2'); poly.setAttribute('stroke-linejoin','round');
+  svg.appendChild(poly);
+
+  axes.forEach((ax,i) => {
+    const rad=angles[i]*Math.PI/180, r=(scores[ax]/5)*maxR*p;
+    const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    c.setAttribute('cx',cx+r*Math.cos(rad)); c.setAttribute('cy',cy+r*Math.sin(rad));
+    c.setAttribute('r','4'); c.setAttribute('fill',color);
+    svg.appendChild(c);
+  });
+
+  axes.forEach((ax,i) => {
+    const rad=angles[i]*Math.PI/180, lr=maxR*1.58;
+    const lx=cx+lr*Math.cos(rad), ly=cy+lr*Math.sin(rad);
+    const tl = document.createElementNS('http://www.w3.org/2000/svg','text');
+    tl.setAttribute('x',lx); tl.setAttribute('y',ly-8); tl.setAttribute('text-anchor','middle');
+    tl.setAttribute('fill','rgba(255,255,255,0.45)'); tl.setAttribute('font-size','11');
+    tl.setAttribute('font-family','Barlow Condensed, sans-serif'); tl.setAttribute('letter-spacing','1');
+    tl.textContent = labels[i].toUpperCase(); svg.appendChild(tl);
+    const tv = document.createElementNS('http://www.w3.org/2000/svg','text');
+    tv.setAttribute('x',lx); tv.setAttribute('y',ly+10); tv.setAttribute('text-anchor','middle');
+    tv.setAttribute('fill',color); tv.setAttribute('font-size','18'); tv.setAttribute('font-weight','700');
+    tv.setAttribute('font-family','Barlow Condensed, sans-serif');
+    tv.textContent = scores[ax]; svg.appendChild(tv);
+  });
+}
+
+function animateRadar(scores, color) {
+  if (animRAF) cancelAnimationFrame(animRAF);
+  const duration = 900;
+  const ease = t => t<0.5?2*t*t:-1+(4-2*t)*t;
+  let start = null;
+  function step(ts) {
+    if (!start) start = ts;
+    const p = Math.min((ts-start)/duration, 1);
+    drawRadar(scores, color, 420, ease(p));
+    if (p < 1) animRAF = requestAnimationFrame(step);
+  }
+  animRAF = requestAnimationFrame(step);
+}
+
+// ── MAIN ──────────────────────────────────────────────────────────────────────
+function renderMain() {
+  const a = ATHLETES[selected];
+  const pc = PROFILE_COLORS[a.profileKey] || PROFILE_COLORS.fase1;
+  const avg = ((a.scores.R+a.scores.N+a.scores.P)/3).toFixed(1);
+  const isValor = isAtivoDeValor(a);
+
+  document.getElementById('athlete-fase').textContent = a.fase;
+  document.getElementById('athlete-name').textContent = a.name;
+  document.getElementById('athlete-sub').textContent = `"${a.nickname}" · ${a.division}`;
+  document.getElementById('athlete-sub').style.color = pc.hex;
+
+  const badge = document.getElementById('ativo-badge');
+  badge.classList.toggle('visible', isValor);
+
+  animateRadar(a.scores, pc.hex);
+  document.getElementById('avg-val').textContent = avg;
+  document.getElementById('avg-val').style.color = pc.hex;
+
+  const pb = document.getElementById('profile-badge');
+  pb.style.borderColor = pc.hex;
+  document.getElementById('profile-text').textContent = a.profile;
+  document.getElementById('profile-text').style.color = pc.hex;
+
+  const ib = document.getElementById('insight-box');
+  ib.style.borderLeftColor = pc.hex;
+  document.getElementById('insight-text').textContent = a.insight;
+
+  // Score bars
+  document.getElementById('score-bars').innerHTML =
+    [['Resultado','R'],['Narrativa','N'],['Presença','P']].map(([label,key]) => `
+      <div class="score-bar">
+        <div class="score-bar-header">
+          <span class="score-bar-label">${label}</span>
+          <span class="score-bar-val" style="color:${pc.hex}">${a.scores[key]}/5</span>
+        </div>
+        <div class="score-bar-track"><div class="score-bar-fill" style="width:${(a.scores[key]/5)*100}%;background:${pc.hex}"></div></div>
+      </div>`).join('');
+
+  // Benchmark
+  const benchEl = document.getElementById('benchmark');
+  benchEl.innerHTML = '';
+  ATHLETES.forEach((at,i) => {
+    const bpc = PROFILE_COLORS[at.profileKey] || PROFILE_COLORS.fase1;
+    const bAvg = ((at.scores.R+at.scores.N+at.scores.P)/3);
+    const row = document.createElement('div');
+    row.className = 'bench-row' + (i===selected?'':' dimmed');
+    row.innerHTML = `
+      <div class="bench-dot" style="background:${bpc.hex}"></div>
+      <div class="bench-info">
+        <div class="bench-top">
+          <span class="bench-name">${at.name.split(' ').slice(-1)[0]}</span>
+          <span class="bench-avg" style="color:${bpc.hex}">${bAvg.toFixed(1)}</span>
+        </div>
+        <div class="bench-track"><div class="bench-fill" style="width:${(bAvg/5)*100}%;background:${bpc.hex}"></div></div>
+      </div>`;
+    row.onclick = () => { selected=i; renderSidebar(); renderMain(); };
+    benchEl.appendChild(row);
+  });
+
+  // Gaps
+  const gaps = [
+    { label:'Resultado → Narrativa', val: a.scores.R-a.scores.N },
+    { label:'Resultado → Presença',  val: a.scores.R-a.scores.P },
+    { label:'Narrativa → Presença',  val: a.scores.N-a.scores.P },
+  ];
+  const maxAbs = Math.max(...gaps.map(g=>Math.abs(g.val)));
+  document.getElementById('gaps').innerHTML = gaps.map(g => `
+    <div class="gap-row">
+      <span class="gap-label">${g.label}</span>
+      <span class="gap-val ${Math.abs(g.val)===maxAbs&&g.val!==0?'critical':''}">${g.val>0?'+'+g.val:g.val}</span>
+    </div>`).join('');
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+(async () => {
+  const ok = await loadAthletes();
+  if (!ok) return;
+  buildLegend();
+  buildFilters();
+  renderSidebar();
+  renderMain();
+  document.getElementById('loading').classList.add('hidden');
+})();
+</script>
+</body>
+</html>
